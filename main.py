@@ -1,17 +1,14 @@
-# This is a sample Python script.
+from fastapi  import FastAPI
+from api.auth import router as auth_router
+from api.bookings import router as bookings_router
+from api.rooms import router as rooms_router
 
-# Press ⌃R to execute it or replace it with your code.
-# Press Double ⇧ to search everywhere for classes, files, tool windows, actions, and settings.
+app = FastAPI(title="Meeting room booking app",version="1.0.0")
+
+app.include_router(auth_router)
+app.include_router(bookings_router)
+app.include_router(rooms_router)
 
 
-def print_hi(name):
-    # Use a breakpoint in the code line below to debug your script.
-    print(f'Hi, {name}')  # Press ⌘F8 to toggle the breakpoint.
 
 
-# Press the green button in the gutter to run the script.
-if __name__ == '__main__':
-    print_hi('PyCharm')
-    print("testing git")
-
-# See PyCharm help at https://www.jetbrains.com/help/pycharm/
