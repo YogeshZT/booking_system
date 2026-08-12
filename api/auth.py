@@ -9,7 +9,7 @@ def login():
 
 @router.post("/logout")
 def logout():
-    pass
+    return 
 
 @router.post("/signup")
 def signup():
