@@ -16,7 +16,7 @@ def signup():
     pass
 
 @router.post("/verify-email")
-def signup():
+def verify_email():
     pass
 
 @router.post("/resend-verification")
