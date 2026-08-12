@@ -4,15 +4,17 @@ router = APIRouter(
     prefix="/api/v1/auth"
 )
 @router.post("/login")
-def login():
+def login(
+    login_payload :
+):
     pass
 
 @router.post("/logout")
 def logout():
     return 
 
-@router.post("/signup")
-def signup():
+@router.post("/register")
+def register():
     pass
 
 @router.post("/verify-email")
