@@ -1,7 +1,7 @@
 from fastapi  import APIRouter
 
 router = APIRouter(
-    prefix="api/v1/bookings"
+    prefix="/api/v1/bookings"
 )
 
 @router.post("/")

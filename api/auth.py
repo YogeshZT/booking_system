@@ -1,7 +1,7 @@
 from fastapi  import APIRouter
 
 router = APIRouter(
-    prefix="api/v1/auth"
+    prefix="/api/v1/auth"
 )
 @router.post("/login")
 def login():
