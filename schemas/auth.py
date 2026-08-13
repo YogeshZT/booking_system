@@ -1,24 +1,29 @@
 from pydantic import BaseModel
 
 
-class Login(BaseModel):
+class LoginRequest(BaseModel):
     email : str
     password : str
 
-class Register(BaseModel):
+
+class RegisterRequest(BaseModel):
     name : str
     email : str
     password : str
 
-class VerifyEmail(BaseModel):
+
+class VerifyEmailRequest(BaseModel):
     verification_token : str
 
-class ResendVerification(BaseModel):
+
+class ResendVerificationRequest(BaseModel):
     verification_token : str
 
-class ForgotPassword(BaseModel):
+
+class ForgotPasswordRequest(BaseModel):
     email : str
 
-class ResetPassword(BaseModel):
+
+class ResetPasswordRequest(BaseModel):
     reset_token : str
     new_password: str
