@@ -1,14 +1,7 @@
 from datetime import datetime
-
-from sqlalchemy import DateTime, ForeignKey, String
-from sqlalchemy.orm import Mapped, mapped_column, relationship
-
+from sqlalchemy import DateTime, ForeignKey, String, func
+from sqlalchemy.orm import Mapped, mapped_column
 from .base import Base
-
-from typing import TYPE_CHECKING
-if TYPE_CHECKING:
-    from models.user import User
-    from models.room import Room
 
 
 class Booking(Base):
@@ -44,13 +37,6 @@ class Booking(Base):
 
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True),
+        server_default=func.now(),
         nullable=False,
-    )
-
-    user: Mapped["User"] = relationship(
-        back_populates="bookings"
-    )
-
-    room: Mapped["Room"] = relationship(
-        back_populates="bookings"
     )

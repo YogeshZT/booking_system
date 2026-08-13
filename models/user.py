@@ -1,20 +1,18 @@
 from datetime import datetime
-
-from sqlalchemy import DateTime, ForeignKey, String
-from sqlalchemy.orm import Mapped, mapped_column, relationship
-
+from enum import Enum
+from sqlalchemy import DateTime, ForeignKey, String, Enum as SQLEnum, func
+from sqlalchemy.orm import Mapped, mapped_column
 from .base import Base
 
-from typing import TYPE_CHECKING
-if TYPE_CHECKING:
-    from models.role import Role
-    from models.booking import Booking
+class EmailVerificationStatus(str, Enum):
+    VERIFIED = "verified"
+    NOT_VERIFIED = "not_verified"
 
 
 class User(Base):
     __tablename__ = "users"
 
-    id: Mapped[int] = mapped_column(primary_key=True)
+    id: Mapped[str] = mapped_column(primary_key=True)
 
     user_name: Mapped[str] = mapped_column(
         String(100),
@@ -38,25 +36,26 @@ class User(Base):
         default="active",
     )
 
-    role_id: Mapped[int] = mapped_column(
+    role_id: Mapped[str] = mapped_column(
         ForeignKey("roles.id"),
         nullable=False,
     )
 
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True),
+        server_default=func.now(),
         nullable=False,
     )
 
     updated_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True),
+        server_default=func.now(),
+        onupdate=func.now(),
         nullable=False,
     )
 
-    role: Mapped["Role"] = relationship(
-        back_populates="users"
-    )
-
-    bookings: Mapped[list["Booking"]] = relationship(
-        back_populates="user"
+    email_verification_status: Mapped[EmailVerificationStatus] = mapped_column(
+        SQLEnum(EmailVerificationStatus),
+        nullable=False,
+        default=EmailVerificationStatus.NOT_VERIFIED,
     )
