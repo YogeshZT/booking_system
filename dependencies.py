@@ -1,4 +1,4 @@
-from fastapi.params import Depends
+from fastapi.params import Depends, Cookie
 
 from infrastructure.database import get_db
 from infrastructure.redis_db import get_redis_client
@@ -55,3 +55,13 @@ def get_room_service(
     return RoomService(
         room_repository = room_repository
     )
+
+
+"""
+dependency to get user_if from session_id obtained from cookie
+"""
+def get_current_user(
+    session_id : str | None = Cookie(default = None),
+    auth_service : AuthService = Depends(get_auth_service)
+):
+    return auth_service.get_current_user(session_id)
