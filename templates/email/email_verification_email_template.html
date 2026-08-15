@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Verify your email</title>
+</head>
+<body>
+    <h2>Verify your email address</h2>
+
+    <p>Hello,</p>
+
+    <p>
+        Thank you for registering for the Meeting Room Booking System.
+        Please verify your email address to activate your account.
+    </p>
+
+    <p>
+        <a href="{{ verification_url }}">
+            Verify Email
+        </a>
+    </p>
+
+    <p>
+        This verification link will expire in {{ expiry_minutes }} minutes.
+    </p>
+
+    <p>
+        If you did not create an account, you can safely ignore this email.
+    </p>
+
+    <p>
+        Regards,<br>
+        Booking System Team
+    </p>
+</body>
+</html>
