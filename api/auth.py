@@ -1,9 +1,10 @@
-from fastapi  import APIRouter, Depends, Cookie
+from fastapi  import APIRouter, Depends, Cookie, Response
 
 from dependencies import get_auth_service, get_current_user
 from schemas.auth import LoginRequest, RegisterRequest, VerifyEmailRequest, ResendVerificationRequest, \
     ResetPasswordRequest, ForgotPasswordRequest
 from services.auth_service import AuthService
+from constants import SESSION_EXPIRY_SECONDS
 
 router = APIRouter(
     prefix="/api/v1/auth"
@@ -12,18 +13,34 @@ router = APIRouter(
 @router.post("/login")
 async def login(
     payload : LoginRequest,
+    response: Response,
     auth_service : AuthService = Depends(get_auth_service)
 ):
-    return await auth_service.login(payload)
+    session_id = await auth_service.login(payload)
+    response.set_cookie(
+        key="session_id",
+        value=session_id,
+        httponly=True,
+        secure=True,
+        samesite="lax",
+        max_age=SESSION_EXPIRY_SECONDS,
+    )
 
 
 @router.post("/logout")
 async def logout(
+    response: Response,
     user_id = Depends(get_current_user),
     session_id = Cookie(default = None),
     auth_service : AuthService = Depends(get_auth_service),
 ):
-    return auth_service.logout(session_id)
+    await auth_service.logout(session_id)
+    response.delete_cookie(
+        key="session_id",
+        httponly=True,
+        secure=True,
+        samesite="lax",
+    )
 
 
 @router.post("/register")
@@ -31,7 +48,7 @@ async def register(
     payload : RegisterRequest,
     auth_service : AuthService = Depends(get_auth_service)
 ):
-    return auth_service.register(payload)
+    return await auth_service.register(payload)
 
 
 @router.post("/verify-email")
@@ -39,7 +56,7 @@ async def verify_email(
     payload : VerifyEmailRequest,
     auth_service : AuthService = Depends(get_auth_service)
 ):
-    return auth_service.verify_email(payload)
+    return await auth_service.verify_email(payload)
 
 
 @router.post("/resend-verification")
@@ -47,7 +64,7 @@ async def resend_verification(
     payload : ResendVerificationRequest,
     auth_service : AuthService = Depends(get_auth_service)
 ):
-    return auth_service.resend_verification(payload)
+    return await auth_service.resend_verification(payload)
 
 
 @router.post("/forgot-password")
@@ -55,7 +72,7 @@ async def forgot_password(
     payload : ForgotPasswordRequest,
     auth_service : AuthService = Depends(get_auth_service)
 ):
-    return auth_service.forgot_password(payload)
+    return await auth_service.forgot_password(payload)
 
 
 @router.post("/reset-password")
@@ -63,4 +80,4 @@ async def reset_password(
     payload : ResetPasswordRequest,
     auth_service : AuthService = Depends(get_auth_service)
 ):
-    return auth_service.reset_password(payload)
+    return await auth_service.reset_password(payload)
