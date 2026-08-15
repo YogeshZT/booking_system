@@ -5,12 +5,13 @@ from constants import EmailVerificationStatus, RoleId, SESSION_EXPIRY_SECONDS, V
 
 
 class AuthService:
-    def __init__(self, user_repository, redis):
+    def __init__(self, user_repository, redis, email_service):
         self.user_repository = user_repository
         self.redis = redis
+        self.email_service = email_service
 
 
-    async def login(self, payload):
+    async def login(self, payload) -> str:
         user_email = payload.email
         user_password = payload.password
 
@@ -26,6 +27,8 @@ class AuthService:
             ex = SESSION_EXPIRY_SECONDS
         )
 
+        return session_id
+
 
     async def logout(self, session_id: str):
         await self.redis.delete(f"session{session_id}")
@@ -40,9 +43,9 @@ class AuthService:
         if user_id:
             raise UserAlreadyExists()
 
-        verify_token = generate_random_token()
+        verification_token = generate_random_token()
         await self.redis.set(
-            f"verify:{verify_token}",
+            f"verify:{verification_token}",
             user_id,
             ex = VERIFICATION_EXPIRY_SECONDS
         )
@@ -58,7 +61,10 @@ class AuthService:
         )
         self.user_repository.create_user(user)
 
-        #send verification email code here
+        await self.email_service.send_verification_email(
+            receiver=email,
+            verification_token=verification_token
+        )
 
 
     async def verify_email(self, payload):
@@ -80,16 +86,19 @@ class AuthService:
         if verification_status == EmailVerificationStatus.VERIFIED.value:
             raise AlreadyVerifiedError()
 
-        verify_token = generate_random_token()
+        verification_token = generate_random_token()
         user_id = self.user_repository.get_user_id_by_email(email)
 
         await self.redis.set(
-            f"verify:{verify_token}",
+            f"verify:{verification_token}",
             user_id,
-            ex=verify_token
+            ex = VERIFICATION_EXPIRY_SECONDS
         )
 
-        #resend verification email code here with link to verify email along with verify token
+        await self.email_service.send_verification_email(
+            receiver=email,
+            verification_token=verification_token
+        )
 
 
     async def forgot_password(self, payload):
@@ -106,7 +115,11 @@ class AuthService:
             ex = RESET_EXPIRY_SECONDS
         )
 
-        #reset password email code here along with the reset token
+        await self.email_service.send_reset_password_email(
+            receiver=email,
+            reset_token=reset_token
+        )
+
 
     async def reset_password(self, payload):
         reset_token = payload.reset_token
@@ -122,12 +135,12 @@ class AuthService:
         await self.user_repository.update_password(user_id, new_password_hash)
         await self.redis.delete(key)
 
+
     async def get_current_user(self, session_id : str | None = None) -> str:
         if not session_id :
             raise AuthenticationError()
 
         user_id = await self.redis.get(f"session{session_id}")
-
         if not user_id:
             raise AuthenticationError()
 
