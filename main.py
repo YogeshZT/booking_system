@@ -1,9 +1,18 @@
 from fastapi  import FastAPI
+
 from api.auth import router as auth_router
 from api.bookings import router as bookings_router
 from api.rooms import router as rooms_router
+from infrastructure.database import engine
+from models.base import Base
+import models
 
-app = FastAPI(title="Meeting room booking app",version="1.0.0")
+async def lifespan(app: FastAPI):
+    Base.metadata.tables.keys()
+    Base.metadata.create_all(bind=engine)
+    yield
+
+app = FastAPI(title="Meeting room booking app",version="1.0.0", lifespan=lifespan)
 
 app.include_router(auth_router)
 app.include_router(bookings_router)

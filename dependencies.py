@@ -5,6 +5,7 @@ from infrastructure.email_service import EmailService
 from infrastructure.redis_db import get_redis_client
 
 from repositories.booking_repository import BookingRepository
+from repositories.role_repository import RoleRepository
 from repositories.room_repository import RoomRepository
 from repositories.user_repository import UserRepository
 
@@ -30,6 +31,11 @@ def get_user_repository(
 ):
     return UserRepository(db)
 
+def get_role_repository(
+    db = Depends(get_db)
+):
+    return RoleRepository(db)
+
 
 """
 dependencies for getting services
@@ -39,11 +45,13 @@ def get_email_service():
 
 def get_auth_service(
     user_repository = Depends(get_user_repository),
+    role_repository = Depends(get_role_repository),
     redis = Depends(get_redis_client),
     email_service = Depends(get_email_service)
 ):
     return AuthService(
         user_repository=user_repository,
+        role_repository=role_repository,
         redis=redis,
         email_service = email_service
     )
