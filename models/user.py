@@ -1,20 +1,17 @@
 from datetime import datetime
-from enum import Enum
+
 from sqlalchemy import DateTime, ForeignKey, String, Enum as SQLEnum, func
 from sqlalchemy.orm import Mapped, mapped_column
 from .base import Base
 
-class EmailVerificationStatus(str, Enum):
-    VERIFIED = "verified"
-    NOT_VERIFIED = "not_verified"
-
+from constants import EmailVerificationStatus
 
 class User(Base):
     __tablename__ = "users"
 
     id: Mapped[str] = mapped_column(primary_key=True)
 
-    user_name: Mapped[str] = mapped_column(
+    name: Mapped[str] = mapped_column(
         String(100),
         nullable=False,
     )

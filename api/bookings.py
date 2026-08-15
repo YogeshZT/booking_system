@@ -1,5 +1,4 @@
-from fastapi  import APIRouter
-from fastapi.params import Depends
+from fastapi  import APIRouter, Depends
 
 from dependencies import get_booking_service, get_current_user
 from schemas.booking import CreateBookingRequest
