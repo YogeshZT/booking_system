@@ -1,15 +1,12 @@
-import os
 import aiosmtplib
-
 from email.message import EmailMessage
 from pathlib import Path
-
 from jinja2 import Environment, FileSystemLoader
 
-from constants import BOOKING_SERVICE_BASE_URL, EMAIL_SENDING_ID
+from constants import BOOKING_SERVICE_BASE_URL, EMAIL_SENDING_ID, SMTP_HOST, SMTP_PORT, SMTP_USERNAME, SMTP_PASSWORD
+
 
 class EmailService:
-
     def __init__(self):
         template_dir = (
             Path(__file__).resolve().parent.parent
@@ -21,10 +18,10 @@ class EmailService:
             loader=FileSystemLoader(template_dir)
         )
 
-        self.smtp_host = os.getenv("SMTP_HOST")
-        self.smtp_port = int(os.getenv("SMTP_PORT", "587"))
-        self.smtp_username = os.getenv("SMTP_USERNAME")
-        self.smtp_password = os.getenv("SMTP_PASSWORD")
+        self.smtp_host = SMTP_HOST
+        self.smtp_port = SMTP_PORT
+        self.smtp_username = SMTP_USERNAME
+        self.smtp_password = SMTP_PASSWORD
 
     async def _send_email(
         self,
@@ -62,7 +59,6 @@ class EmailService:
         receiver: str,
         verification_token: str
     ):
-
         template = self.template_env.get_template(
             "email_verification_email_template.html"
         )
@@ -82,7 +78,6 @@ class EmailService:
             subject="Verify your email address",
             html_content=html_content,
         )
-
     async def send_reset_password_email(
         self,
         receiver: str,

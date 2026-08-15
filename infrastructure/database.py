@@ -1,11 +1,12 @@
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
+from constants import PG_DATABASE_URL
 
-DATABASE_URL = "postgresql+psycopg://postgres:password@localhost:5432/booking_db"
 
 engine = create_engine(
-    DATABASE_URL,
+    PG_DATABASE_URL,
     pool_pre_ping=True,
+    echo=True
 )
 
 SessionLocal = sessionmaker(
