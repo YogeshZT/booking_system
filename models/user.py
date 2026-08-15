@@ -52,7 +52,11 @@ class User(Base):
     )
 
     email_verification_status: Mapped[EmailVerificationStatus] = mapped_column(
-        SQLEnum(EmailVerificationStatus),
+        SQLEnum(
+            EmailVerificationStatus,
+            name="email_verification_status",
+            values_callable=lambda enum: [e.value for e in enum],
+        ),
         nullable=False,
         default=EmailVerificationStatus.NOT_VERIFIED,
     )
