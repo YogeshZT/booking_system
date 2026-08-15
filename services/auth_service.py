@@ -5,8 +5,9 @@ from constants import EmailVerificationStatus, RoleId, SESSION_EXPIRY_SECONDS, V
 
 
 class AuthService:
-    def __init__(self, user_repository, redis, email_service):
+    def __init__(self, user_repository, role_repository, redis, email_service):
         self.user_repository = user_repository
+        self.role_repository = role_repository
         self.redis = redis
         self.email_service = email_service
 
@@ -44,6 +45,7 @@ class AuthService:
             raise UserAlreadyExists()
 
         verification_token = generate_random_token()
+        user_id = generate_uuid()
         await self.redis.set(
             f"verify:{verification_token}",
             user_id,
@@ -51,13 +53,13 @@ class AuthService:
         )
 
         password_hash = hash_password(password)
+        role = self.role_repository.get_role_by_name(RoleId.USER.value)
         user = User(
-            id = generate_uuid(),
+            id = user_id,
             name=name,
             email = email,
             password_hash = password_hash,
-            role_id = RoleId.ADMIN.value,
-            email_verification_status = EmailVerificationStatus.NOT_VERIFIED
+            role_id = role.id,
         )
         self.user_repository.create_user(user)
 

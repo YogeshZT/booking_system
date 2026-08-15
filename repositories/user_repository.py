@@ -7,7 +7,10 @@ class UserRepository:
         self.db = db
 
     def create_user(self, user : User):
-        pass
+        self.db.add(user)
+        self.db.commit()
+        self.db.refresh(user)
+        return user
 
     def get_by_email(self, email : str):
         pass
