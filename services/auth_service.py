@@ -1,7 +1,7 @@
-from multiprocessing.context import AuthenticationError
-
-from utils import hash_password
-from exceptions import UserAlreadyExists
+from utils import hash_password, generate_random_token, generate_uuid
+from exceptions import AuthenticationError, UserAlreadyExists, EmailVerificationError, AlreadyVerifiedError
+from models.user import User
+from constants import EmailVerificationStatus, RoleId, SESSION_EXPIRY_SECONDS, VERIFICATION_EXPIRY_SECONDS, RESET_EXPIRY_SECONDS
 
 
 class AuthService:
@@ -9,43 +9,124 @@ class AuthService:
         self.user_repository = user_repository
         self.redis = redis
 
-    def login(self, payload):
+
+    async def login(self, payload):
         user_email = payload.email
         user_password = payload.password
 
-    def logout(self):
-        pass
+        hashed_password = hash_password(user_password)
+        if hashed_password != self.user_repository.get_user_password_by_email(user_email):
+            raise AuthenticationError()
+
+        session_id = generate_uuid()
+        user_id = self.user_repository.get_user_id_by_email(user_email)
+        await self.redis.set(
+            f"session{session_id}",
+            user_id,
+            ex = SESSION_EXPIRY_SECONDS
+        )
 
 
-    def register(self, payload):
-        user_name = payload.name
-        user_email = payload.email
+    async def logout(self, session_id: str):
+        await self.redis.delete(f"session{session_id}")
+
+
+    async def register(self, payload):
+        name = payload.name
+        email = payload.email
         password = payload.password
 
-        existing_user = self.user_repository.get_by_email(user_email)
-
-        if existing_user:
+        user_id = self.user_repository.get_user_id_by_email(email)
+        if user_id:
             raise UserAlreadyExists()
 
+        verify_token = generate_random_token()
+        await self.redis.set(
+            f"verify:{verify_token}",
+            user_id,
+            ex = VERIFICATION_EXPIRY_SECONDS
+        )
+
         password_hash = hash_password(password)
+        user = User(
+            id = generate_uuid(),
+            name=name,
+            email = email,
+            password_hash = password_hash,
+            role_id = RoleId.ADMIN.value,
+            email_verification_status = EmailVerificationStatus.NOT_VERIFIED
+        )
+        self.user_repository.create_user(user)
 
-    def verify_email(self, payload):
-        pass
+        #send verification email code here
 
-    def resend_verification(self, payload):
-        pass
 
-    def reset_password(self, payload):
-        pass
+    async def verify_email(self, payload):
+        verification_token = payload.verification_token
+        key = f"verify:{verification_token}"
 
-    def forgot_password(self, payload):
-        pass
+        user_id = await self.redis.get(key)
+        if user_id is None:
+            raise EmailVerificationError()
 
-    def get_current_user(self, session_id : str):
+        await self.user_repository.update_email_verification_status(user_id, EmailVerificationStatus.VERIFIED.value)
+        await self.redis.delete(key)
+
+
+    async def resend_verification(self, payload):
+        email = payload.email
+        verification_status = self.user_repository.get_user_email_verification_status(email)
+
+        if verification_status == EmailVerificationStatus.VERIFIED.value:
+            raise AlreadyVerifiedError()
+
+        verify_token = generate_random_token()
+        user_id = self.user_repository.get_user_id_by_email(email)
+
+        await self.redis.set(
+            f"verify:{verify_token}",
+            user_id,
+            ex=verify_token
+        )
+
+        #resend verification email code here with link to verify email along with verify token
+
+
+    async def forgot_password(self, payload):
+        email = payload.email
+        user_id = self.user_repository.get_user_id_by_email(email)
+
+        if not user_id:
+            return
+
+        reset_token = generate_random_token()
+        self.redis.set(
+            f"reset_password:{reset_token}",
+            user_id,
+            ex = RESET_EXPIRY_SECONDS
+        )
+
+        #reset password email code here along with the reset token
+
+    async def reset_password(self, payload):
+        reset_token = payload.reset_token
+        key = f"reset_password:{reset_token}"
+
+        user_id = await self.redis.get(key)
+        if not user_id:
+            raise AuthenticationError()
+
+        new_password = payload.new_password
+        new_password_hash = hash_password(new_password)
+
+        await self.user_repository.update_password(user_id, new_password_hash)
+        await self.redis.delete(key)
+
+    async def get_current_user(self, session_id : str | None = None) -> str:
         if not session_id :
             raise AuthenticationError()
 
-        user_id = self.redis.get(f"session{session_id}")
+        user_id = await self.redis.get(f"session{session_id}")
 
         if not user_id:
             raise AuthenticationError()

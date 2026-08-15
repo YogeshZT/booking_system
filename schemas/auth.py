@@ -17,7 +17,7 @@ class VerifyEmailRequest(BaseModel):
 
 
 class ResendVerificationRequest(BaseModel):
-    verification_token : str
+    email : str
 
 
 class ForgotPasswordRequest(BaseModel):

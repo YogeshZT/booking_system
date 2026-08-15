@@ -5,15 +5,10 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="54f05dac-cd69-41c9-97b4-9f42da5225ac" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/utils.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/api/auth.py" beforeDir="false" afterPath="$PROJECT_DIR$/api/auth.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/api/bookings.py" beforeDir="false" afterPath="$PROJECT_DIR$/api/bookings.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/api/utils.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/dependencies.py" beforeDir="false" afterPath="$PROJECT_DIR$/dependencies.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/schemas/booking.py" beforeDir="false" afterPath="$PROJECT_DIR$/schemas/booking.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/repositories/user_repository.py" beforeDir="false" afterPath="$PROJECT_DIR$/repositories/user_repository.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/schemas/auth.py" beforeDir="false" afterPath="$PROJECT_DIR$/schemas/auth.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/services/auth_service.py" beforeDir="false" afterPath="$PROJECT_DIR$/services/auth_service.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/services/booking_service.py" beforeDir="false" afterPath="$PROJECT_DIR$/services/booking_service.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -64,11 +59,12 @@
         <env name="PYTHONUNBUFFERED" value="1" />
       </envs>
       <option name="SDK_HOME" value="" />
-      <option name="SDK_NAME" value="Python 3.12 (booking_system)" />
       <option name="WORKING_DIRECTORY" value="" />
       <option name="IS_MODULE_SDK" value="false" />
       <option name="ADD_CONTENT_ROOTS" value="true" />
       <option name="ADD_SOURCE_ROOTS" value="true" />
+      <option name="DEBUG_JUST_MY_CODE" value="true" />
+      <option name="RUN_TOOL" value="" />
       <option name="SCRIPT_NAME" value="uvicorn" />
       <option name="PARAMETERS" value="main:app --reload --port 8000" />
       <option name="SHOW_COMMAND_LINE" value="false" />
@@ -95,16 +91,5 @@
       <updated>1786529878688</updated>
     </task>
     <servers />
-  </component>
-  <component name="XDebuggerManager">
-    <breakpoint-manager>
-      <breakpoints>
-        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
-          <url>file://$PROJECT_DIR$/infrastructure/database.py</url>
-          <line>5</line>
-          <option name="timeStamp" value="2" />
-        </line-breakpoint>
-      </breakpoints>
-    </breakpoint-manager>
   </component>
 </project>
