@@ -1,3 +1,5 @@
+import ssl
+import certifi
 import aiosmtplib
 from email.message import EmailMessage
 from pathlib import Path
@@ -45,6 +47,8 @@ class EmailService:
             subtype="html",
         )
 
+        tls_context = ssl.create_default_context(cafile=certifi.where())
+
         await aiosmtplib.send(
             message,
             hostname=self.smtp_host,
@@ -52,6 +56,7 @@ class EmailService:
             username=self.smtp_username,
             password=self.smtp_password,
             start_tls=True,
+            tls_context=tls_context,
         )
 
     async def send_verification_email(
@@ -65,7 +70,7 @@ class EmailService:
 
         verification_url = (
             f"{BOOKING_SERVICE_BASE_URL}"
-            f"/verify-email?token={verification_token}"
+            f"/api/v1/auth/verify-email?token={verification_token}"
         )
 
         html_content = template.render(
@@ -78,6 +83,7 @@ class EmailService:
             subject="Verify your email address",
             html_content=html_content,
         )
+
     async def send_reset_password_email(
         self,
         receiver: str,

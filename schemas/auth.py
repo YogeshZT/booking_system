@@ -12,10 +12,6 @@ class RegisterRequest(BaseModel):
     password : str
 
 
-class VerifyEmailRequest(BaseModel):
-    verification_token : str
-
-
 class ResendVerificationRequest(BaseModel):
     email : str
 
