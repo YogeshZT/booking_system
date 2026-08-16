@@ -17,7 +17,7 @@ class AuthService:
         user_password = payload.password
 
         hashed_password = hash_password(user_password)
-        if hashed_password != self.user_repository.get_user_password_by_email(user_email):
+        if hashed_password != await self.user_repository.get_user_password_by_email(user_email):
             raise AuthenticationError()
 
         session_id = generate_uuid()
@@ -40,7 +40,7 @@ class AuthService:
         email = payload.email
         password = payload.password
 
-        user_id = self.user_repository.get_user_id_by_email(email)
+        user_id = await self.user_repository.get_user_id_by_email(email)
         if user_id:
             raise UserAlreadyExists()
 
@@ -53,7 +53,7 @@ class AuthService:
         )
 
         password_hash = hash_password(password)
-        role = self.role_repository.get_role_by_name(RoleId.USER.value)
+        role = await self.role_repository.get_role_by_name(RoleId.USER.value)
         user = User(
             id = user_id,
             name=name,
@@ -61,7 +61,7 @@ class AuthService:
             password_hash = password_hash,
             role_id = role.id,
         )
-        self.user_repository.create_user(user)
+        await self.user_repository.create_user(user)
 
         await self.email_service.send_verification_email(
             receiver=email,
@@ -69,11 +69,12 @@ class AuthService:
         )
 
 
-    async def verify_email(self, payload):
-        verification_token = payload.verification_token
+    async def verify_email(self, verification_token):
         key = f"verify:{verification_token}"
 
         user_id = await self.redis.get(key)
+        user_id = user_id.decode("utf-8")
+
         if user_id is None:
             raise EmailVerificationError()
 
@@ -83,13 +84,13 @@ class AuthService:
 
     async def resend_verification(self, payload):
         email = payload.email
-        verification_status = self.user_repository.get_user_email_verification_status(email)
+        verification_status = await self.user_repository.get_user_email_verification_status(email)
 
         if verification_status == EmailVerificationStatus.VERIFIED.value:
             raise AlreadyVerifiedError()
 
         verification_token = generate_random_token()
-        user_id = self.user_repository.get_user_id_by_email(email)
+        user_id = await self.user_repository.get_user_id_by_email(email)
 
         await self.redis.set(
             f"verify:{verification_token}",

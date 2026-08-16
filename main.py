@@ -8,8 +8,8 @@ from models.base import Base
 import models
 
 async def lifespan(app: FastAPI):
-    Base.metadata.tables.keys()
-    Base.metadata.create_all(bind=engine)
+    async with engine.begin() as conn:
+        await conn.run_sync(Base.metadata.create_all)
     yield
 
 app = FastAPI(title="Meeting room booking app",version="1.0.0", lifespan=lifespan)
