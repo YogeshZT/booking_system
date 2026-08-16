@@ -1,7 +1,7 @@
-from fastapi  import APIRouter, Depends, Cookie, Response
+from fastapi  import APIRouter, Depends, Cookie, Response, Query
 
 from dependencies import get_auth_service, get_current_user
-from schemas.auth import LoginRequest, RegisterRequest, VerifyEmailRequest, ResendVerificationRequest, \
+from schemas.auth import LoginRequest, RegisterRequest, ResendVerificationRequest, \
     ResetPasswordRequest, ForgotPasswordRequest
 from services.auth_service import AuthService
 from constants import SESSION_EXPIRY_SECONDS
@@ -51,12 +51,12 @@ async def register(
     return await auth_service.register(payload)
 
 
-@router.post("/verify-email")
+@router.get("/verify-email")
 async def verify_email(
-    payload : VerifyEmailRequest,
+    token = Query(...),
     auth_service : AuthService = Depends(get_auth_service)
 ):
-    return await auth_service.verify_email(payload)
+    return await auth_service.verify_email(token)
 
 
 @router.post("/resend-verification")
