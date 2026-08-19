@@ -1,5 +1,5 @@
 from utils import hash_password, generate_random_token, generate_uuid
-from exceptions import AuthenticationError, UserAlreadyExists, EmailVerificationError, AlreadyVerifiedError
+from exceptions.exceptions import AuthenticationError, UserAlreadyExists, EmailVerificationError, AlreadyVerifiedError
 from models.user import User
 from constants import EmailVerificationStatus, RoleId, SESSION_EXPIRY_SECONDS, VERIFICATION_EXPIRY_SECONDS, RESET_EXPIRY_SECONDS
 
@@ -85,6 +85,9 @@ class AuthService:
     async def resend_verification(self, payload):
         email = payload.email
         verification_status = await self.user_repository.get_user_email_verification_status(email)
+
+        if not verification_status:
+            raise AuthenticationError()
 
         if verification_status == EmailVerificationStatus.VERIFIED.value:
             raise AlreadyVerifiedError()

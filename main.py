@@ -3,6 +3,8 @@ from fastapi  import FastAPI
 from api.auth import router as auth_router
 from api.bookings import router as bookings_router
 from api.rooms import router as rooms_router
+from exceptions.exceptions import AppException
+from exceptions.handlers import app_exception_handler, generic_exception_handler
 from infrastructure.database import engine
 from models.base import Base
 import models
@@ -13,6 +15,9 @@ async def lifespan(app: FastAPI):
     yield
 
 app = FastAPI(title="Meeting room booking app",version="1.0.0", lifespan=lifespan)
+
+app.add_exception_handler(AppException, app_exception_handler)
+app.add_exception_handler(Exception, generic_exception_handler)
 
 app.include_router(auth_router)
 app.include_router(bookings_router)
