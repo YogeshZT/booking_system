@@ -10,7 +10,9 @@ async def app_exception_handler(
     return JSONResponse(
         status_code=exception.status_code,
         content={
-            "error":exception.message
+            "status":False,
+            "message":exception.message,
+            "data":{}
         }
     )
 
@@ -21,6 +23,8 @@ async def generic_exception_handler(
     return JSONResponse(
         status_code=500,
         content={
-            "error":"Internal server error"
+            "status":False,
+            "message":"Internal server error",
+            "data":{}
         }
     )

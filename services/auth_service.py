@@ -73,10 +73,10 @@ class AuthService:
         key = f"verify:{verification_token}"
 
         user_id = await self.redis.get(key)
-        user_id = user_id.decode("utf-8")
-
         if user_id is None:
             raise EmailVerificationError()
+
+        user_id = user_id.decode("utf-8")
 
         await self.user_repository.update_email_verification_status(user_id, EmailVerificationStatus.VERIFIED.value)
         await self.redis.delete(key)
