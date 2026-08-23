@@ -109,14 +109,15 @@ class AuthService:
 
     async def forgot_password(self, payload):
         email = payload.email
-        user_id = self.user_repository.get_user_id_by_email(email)
+        user_id = await self.user_repository.get_user_id_by_email(email)
 
         if not user_id:
             return
 
         reset_token = generate_random_token()
-        self.redis.set(
-            f"reset_password:{reset_token}",
+        key = f"reset_password:{reset_token}"
+        await self.redis.set(
+            key,
             user_id,
             ex = RESET_EXPIRY_SECONDS
         )
@@ -135,6 +136,7 @@ class AuthService:
         if not user_id:
             raise AuthenticationError()
 
+        user_id = user_id.decode("utf-8")
         new_password = payload.new_password
         new_password_hash = hash_password(new_password)
 
