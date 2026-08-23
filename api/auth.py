@@ -1,10 +1,13 @@
 from fastapi  import APIRouter, Depends, Cookie, Response, Query
 
 from dependencies import get_auth_service, get_current_user
+from responses.common import SuccessResponse
 from schemas.auth import LoginRequest, RegisterRequest, ResendVerificationRequest, \
     ResetPasswordRequest, ForgotPasswordRequest
 from services.auth_service import AuthService
 from constants import SESSION_EXPIRY_SECONDS
+from responses.common import SuccessResponse
+from responses.messages import *
 
 router = APIRouter(
     prefix="/api/v1/auth"
@@ -48,7 +51,12 @@ async def register(
     payload : RegisterRequest,
     auth_service : AuthService = Depends(get_auth_service)
 ):
-    return await auth_service.register(payload)
+    await auth_service.register(payload)
+    return SuccessResponse(
+        status=201,
+        message=REGISTER_USER_SUCCESS_MESSAGE,
+        data={}
+    )
 
 
 @router.get("/verify-email")
@@ -56,7 +64,12 @@ async def verify_email(
     token = Query(...),
     auth_service : AuthService = Depends(get_auth_service)
 ):
-    return await auth_service.verify_email(token)
+    await auth_service.verify_email(token)
+    return SuccessResponse(
+        status=200,
+        message=EMAIL_VERIFIED_MESSAGE,
+        data={}
+    )
 
 
 @router.post("/resend-verification")
@@ -64,7 +77,12 @@ async def resend_verification(
     payload : ResendVerificationRequest,
     auth_service : AuthService = Depends(get_auth_service)
 ):
-    return await auth_service.resend_verification(payload)
+    await auth_service.resend_verification(payload)
+    return SuccessResponse(
+        status=200,
+        message=RESEND_VERIFY_EMAIL_SENT_MESSAGE,
+        data={}
+    )
 
 
 @router.post("/forgot-password")
@@ -72,12 +90,22 @@ async def forgot_password(
     payload : ForgotPasswordRequest,
     auth_service : AuthService = Depends(get_auth_service)
 ):
-    return await auth_service.forgot_password(payload)
+    await auth_service.forgot_password(payload)
+    return SuccessResponse(
+        status=200,
+        message=FORGOT_PASSWORD_SUCCESS_MESSAGE,
+        data={}
+    )
 
 
-@router.post("/reset-password")
+@router.get("/reset-password")
 async def reset_password(
     payload : ResetPasswordRequest,
     auth_service : AuthService = Depends(get_auth_service)
 ):
-    return await auth_service.reset_password(payload)
+    await auth_service.reset_password(payload)
+    return SuccessResponse(
+        status=200,
+        message=RESET_PASSWORD_SUCCESS_RESPONSE,
+        data={}
+    )
