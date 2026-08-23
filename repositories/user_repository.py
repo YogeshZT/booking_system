@@ -47,5 +47,12 @@ class UserRepository:
 
         return user.email_verification_status
 
-    def update_password(self, user_id : str, new_password : str):
-        pass
+
+    async def update_password(self, user_id : str, new_password_hash : str):
+        user = await self.db.scalar(
+            select(User).where(User.id == user_id)
+        )
+
+        user.password_hash = new_password_hash
+        await self.db.commit()
+        await self.db.refresh(user)
