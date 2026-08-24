@@ -14,10 +14,22 @@ class UserRepository:
         await self.db.refresh(user)
         return user
 
-    async def update_email_verification_status(self, user_id : str, verification_status : EmailVerificationStatus):
+
+    async def get_user_by_user_id(self, user_id : str):
         user = await self.db.scalar(
             select(User).where(User.id == user_id)
         )
+        return user
+
+    async def get_user_by_email_id(self, email : str):
+        user = await self.db.scalar(
+            select(User).where(User.email == email)
+        )
+        return user
+
+
+    async def update_email_verification_status(self, user_id : str, verification_status : EmailVerificationStatus):
+        user = await self.get_user_by_user_id(user_id)
         user.email_verification_status = verification_status
 
         await self.db.commit()
@@ -26,22 +38,26 @@ class UserRepository:
         return user
 
 
-    def get_user_password_by_email(self, email : str):
-        pass
+    async def get_user_password_by_email(self, email : str) -> User | None:
+        user = await self.get_user_by_email_id(email)
+
+        if user:
+            return user.password_hash
+
+        return None
+
 
     async def get_user_id_by_email(self, email : str):
-        user = await self.db.scalar(
-            select(User).where(User.email == email)
-        )
+        user = await self.get_user_by_email_id(email)
         if not user:
             return None
 
         return user.id
 
+
     async def get_user_email_verification_status(self, email : str):
-        user = await self.db.scalar(
-            select(User).where(User.email == email)
-        )
+        user = await self.get_user_by_email_id(email)
+
         if not user:
             return None
 
@@ -49,9 +65,7 @@ class UserRepository:
 
 
     async def update_password(self, user_id : str, new_password_hash : str):
-        user = await self.db.scalar(
-            select(User).where(User.id == user_id)
-        )
+        user = await self.get_user_by_user_id(user_id)
 
         user.password_hash = new_password_hash
         await self.db.commit()
