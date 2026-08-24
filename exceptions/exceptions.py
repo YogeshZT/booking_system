@@ -11,15 +11,20 @@ class UserAlreadyExists(AppException):
 
 class AuthenticationError(AppException):
     def __init__(self):
-        super().__init__("Unauthorized", 404)
+        super().__init__("Unauthorized", 401)
 
 
 class EmailVerificationError(AppException):
     def __init__(self):
-        super().__init__("Can't verify email, please try again", 404)
+        super().__init__("Can't verify email, please try again", 400)
 
 
 class AlreadyVerifiedError(AppException):
     def __init__(self):
-        super().__init__("Unauthorized", 404)
+        super().__init__("User already verified", 404)
+
+
+class WrongPasswordError(AppException):
+    def __init__(self):
+        super().__init__("Wrong password entered", 401)
 

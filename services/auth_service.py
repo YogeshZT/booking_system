@@ -1,5 +1,5 @@
-from utils import hash_password, generate_random_token, generate_uuid
-from exceptions.exceptions import AuthenticationError, UserAlreadyExists, EmailVerificationError, AlreadyVerifiedError
+from utils import hash_password, generate_random_token, generate_uuid, verify_password
+from exceptions.exceptions import *
 from models.user import User
 from constants import EmailVerificationStatus, RoleId, SESSION_EXPIRY_SECONDS, VERIFICATION_EXPIRY_SECONDS, RESET_EXPIRY_SECONDS
 
@@ -16,12 +16,16 @@ class AuthService:
         user_email = payload.email
         user_password = payload.password
 
-        hashed_password = hash_password(user_password)
-        if hashed_password != await self.user_repository.get_user_password_by_email(user_email):
+        hashed_password = await self.user_repository.get_user_password_by_email(user_email)
+
+        if not hashed_password:
             raise AuthenticationError()
 
+        if not verify_password(user_password, hashed_password):
+            raise WrongPasswordError()
+
         session_id = generate_uuid()
-        user_id = self.user_repository.get_user_id_by_email(user_email)
+        user_id = await self.user_repository.get_user_id_by_email(user_email)
         await self.redis.set(
             f"session{session_id}",
             user_id,
