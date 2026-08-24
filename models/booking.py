@@ -1,6 +1,9 @@
 from datetime import datetime
+
 from sqlalchemy import DateTime, ForeignKey, String, func
+from sqlalchemy.dialects.postgresql import ExcludeConstraint
 from sqlalchemy.orm import Mapped, mapped_column
+
 from .base import Base
 
 
@@ -39,4 +42,20 @@ class Booking(Base):
         DateTime(timezone=True),
         server_default=func.now(),
         nullable=False,
+    )
+
+    __table_args__ = (
+        ExcludeConstraint(
+            ("room_id", "="),
+            (
+                func.tstzrange(
+                    start_time,
+                    end_time,
+                    "[)",
+                ),
+                "&&",
+            ),
+            name="no_overlapping_bookings",
+            using="gist",
+        ),
     )
