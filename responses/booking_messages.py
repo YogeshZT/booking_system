@@ -1,0 +1,1 @@
+BOOKING_CREATED_MESSAGE = "Booking created successfully"

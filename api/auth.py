@@ -1,13 +1,11 @@
 from fastapi  import APIRouter, Depends, Cookie, Response, Query
 
 from dependencies import get_auth_service, get_current_user
-from responses.common import SuccessResponse
-from schemas.auth import LoginRequest, RegisterRequest, ResendVerificationRequest, \
-    ResetPasswordRequest, ForgotPasswordRequest
+from schemas.auth import LoginRequest, RegisterRequest, ResendVerificationRequest, ResetPasswordRequest, ForgotPasswordRequest
 from services.auth_service import AuthService
 from constants import SESSION_EXPIRY_SECONDS
 from responses.common import SuccessResponse
-from responses.messages import *
+from responses.auth_messages import *
 
 router = APIRouter(
     prefix="/api/v1/auth"

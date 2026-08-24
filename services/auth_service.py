@@ -1,5 +1,5 @@
 from utils import hash_password, generate_random_token, generate_uuid, verify_password
-from exceptions.exceptions import *
+from exceptions.auth_exceptions import *
 from models.user import User
 from constants import EmailVerificationStatus, RoleId, SESSION_EXPIRY_SECONDS, VERIFICATION_EXPIRY_SECONDS, RESET_EXPIRY_SECONDS
 
@@ -155,5 +155,5 @@ class AuthService:
         user_id = await self.redis.get(f"session{session_id}")
         if not user_id:
             raise AuthenticationError()
-
+        user_id = user_id.decode('utf-8')
         return user_id
