@@ -163,6 +163,9 @@ class AuthService:
     async def get_admin(self, user_id):
         user = await self.user_repository.get_user_with_role(user_id)
 
+        if not user:
+            raise AuthorizationError()
+
         if user.role.name != RoleId.ADMIN.value:
             raise AuthorizationError()
 
