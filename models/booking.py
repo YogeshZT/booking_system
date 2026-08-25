@@ -10,7 +10,7 @@ from .base import Base
 class Booking(Base):
     __tablename__ = "bookings"
 
-    id: Mapped[int] = mapped_column(primary_key=True)
+    id: Mapped[str] = mapped_column(primary_key=True)
 
     user_id: Mapped[str] = mapped_column(
         ForeignKey("users.id"),
