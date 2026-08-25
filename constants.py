@@ -1,4 +1,5 @@
 import os
+from datetime import timedelta
 from enum import Enum
 
 from dotenv import load_dotenv
@@ -12,6 +13,10 @@ class EmailVerificationStatus(str, Enum):
 class RoleId(str, Enum):
     ADMIN = "admin"
     USER = "user"
+
+class RoomStatus(str, Enum):
+    ACTIVE = "active",
+    BLOCKED = "blocked"
 
 SESSION_EXPIRY_SECONDS = 60 * 60 * 24
 VERIFICATION_EXPIRY_SECONDS = 60 * 30
@@ -32,3 +37,6 @@ REDIS_PORT = os.getenv("REDIS_PORT", 6379)
 
 #postgres config
 PG_DATABASE_URL = os.getenv("PG_DATABASE_URL")
+
+#booking duration configuration
+BOOKING_DURATION = os.getenv("BOOKING_DURATION", 1)
