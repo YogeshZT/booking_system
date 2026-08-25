@@ -12,7 +12,7 @@ class RoomService:
 
     async def create_room(self, payload, user_id) -> Room | None:
         room_name = payload.room_name
-        room = await self.room_repository.create_room(room_name)
+        room = await self.room_repository.create_room(room_name, user_id)
 
         if not room:
             raise CannotCreateRoomError()

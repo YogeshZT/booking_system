@@ -13,11 +13,12 @@ class RoomRepository:
         )
         return room
 
-    async def create_room(self, room_name : str) -> Room | None:
+    async def create_room(self, room_name : str, user_id : str) -> Room | None:
         room_id = generate_uuid()
         room = Room(
             id = room_id,
-            name = room_name
+            name = room_name,
+            created_by = user_id
         )
 
         self.db.add(room)
