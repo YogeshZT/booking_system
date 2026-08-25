@@ -1,4 +1,5 @@
 from sqlalchemy import select
+from sqlalchemy.orm import joinedload
 
 from constants import EmailVerificationStatus
 from models.user import User
@@ -38,7 +39,7 @@ class UserRepository:
         return user
 
 
-    async def get_user_password_by_email(self, email : str) -> User | None:
+    async def get_user_password_by_email(self, email : str) -> str | None:
         user = await self.get_user_by_email_id(email)
 
         if user:
@@ -70,3 +71,13 @@ class UserRepository:
         user.password_hash = new_password_hash
         await self.db.commit()
         await self.db.refresh(user)
+
+
+    async def get_user_with_role(self, user_id: str):
+        result = await self.db.execute(
+            select(User)
+            .options(joinedload(User.role))
+            .where(User.id == user_id)
+        )
+
+        return result.scalar_one_or_none()

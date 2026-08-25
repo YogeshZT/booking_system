@@ -1,5 +1,7 @@
 from fastapi import Depends, Cookie
 
+from constants import RoleId
+from exceptions.auth_exceptions import AuthorizationError
 from infrastructure.database import get_db
 from infrastructure.email_service import EmailService
 from infrastructure.redis_db import get_redis_client
@@ -56,12 +58,6 @@ def get_auth_service(
         email_service = email_service
     )
 
-def get_booking_service(
-    booking_repository = Depends(get_booking_repository)
-):
-    return BookingService(
-        booking_repository = booking_repository
-    )
 
 def get_room_service(
     room_repository = Depends(get_room_repository)
@@ -70,12 +66,28 @@ def get_room_service(
         room_repository = room_repository
     )
 
+def get_booking_service(
+    booking_repository = Depends(get_booking_repository),
+    room_service = Depends(get_room_service)
+):
+    return BookingService(
+        booking_repository = booking_repository,
+        room_service = room_service
+    )
+
 
 """
-dependency to get user_if from session_id obtained from cookie
+dependency to get user_id from session_id obtained from cookie
 """
 async def get_current_user(
     session_id : str | None = Cookie(default = None, alias='session_id'),
     auth_service : AuthService = Depends(get_auth_service)
 ):
     return await auth_service.get_current_user(session_id)
+
+
+async def require_admin(
+    user_id = Depends(get_current_user),
+    auth_service : AuthService = Depends(get_auth_service)
+):
+    return await auth_service.get_admin(user_id)

@@ -1,3 +1,5 @@
+from repositories.role_repository import RoleRepository
+from repositories.user_repository import UserRepository
 from utils import hash_password, generate_random_token, generate_uuid, verify_password
 from exceptions.auth_exceptions import *
 from models.user import User
@@ -6,8 +8,8 @@ from constants import EmailVerificationStatus, RoleId, SESSION_EXPIRY_SECONDS, V
 
 class AuthService:
     def __init__(self, user_repository, role_repository, redis, email_service):
-        self.user_repository = user_repository
-        self.role_repository = role_repository
+        self.user_repository : UserRepository = user_repository
+        self.role_repository : RoleRepository = role_repository
         self.redis = redis
         self.email_service = email_service
 
@@ -157,3 +159,15 @@ class AuthService:
             raise AuthenticationError()
         user_id = user_id.decode('utf-8')
         return user_id
+
+    async def get_admin(self, user_id):
+        user = await self.user_repository.get_user_with_role(user_id)
+
+        if user.role.name != RoleId.ADMIN.value:
+            raise AuthorizationError()
+
+        return user.id
+
+
+
+

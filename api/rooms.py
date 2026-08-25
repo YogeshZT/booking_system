@@ -1,4 +1,10 @@
-from fastapi  import APIRouter
+from fastapi  import APIRouter, Depends, Cookie, Response, Query
+
+from dependencies import get_current_user, get_room_service, require_admin
+from responses.common import SuccessResponse
+from responses.room_messages import ROOM_CREATED_SUCCESSFULLY_MESSAGE
+from schemas.room import RoomCreationRequest
+from services.room_service import RoomService
 
 router = APIRouter(
     prefix="/api/v1/rooms"
@@ -17,8 +23,21 @@ def get_available_rooms():
     pass
 
 @router.post("/")
-def create_room():
-    pass
+async def create_room(
+    payload: RoomCreationRequest,
+    user_id = Depends(require_admin),
+    room_service: RoomService = Depends(get_room_service),
+):
+    room = await room_service.create_room(payload, user_id)
+
+    return SuccessResponse(
+        status = True,
+        message = ROOM_CREATED_SUCCESSFULLY_MESSAGE,
+        data = {
+            "room_id": room.id
+        }
+    )
+
 
 @router.patch("/")
 def edit_room_details():
