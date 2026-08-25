@@ -1,5 +1,5 @@
 from datetime import datetime
-from sqlalchemy import DateTime, String, func
+from sqlalchemy import DateTime, String, func, ForeignKey
 from sqlalchemy.orm import Mapped, mapped_column
 from .base import Base
 
@@ -31,5 +31,9 @@ class Room(Base):
         DateTime(timezone=True),
         server_default=func.now(),
         onupdate=func.now(),
+        nullable=False,
+    )
+    created_by : Mapped[str] = mapped_column(
+        ForeignKey("users.id"),
         nullable=False,
     )
