@@ -7,3 +7,10 @@ class CannotCreateRoomError(AppException):
             message = "Cannot create room",
             status_code = 400
         )
+
+class CannotEditRoomError(AppException):
+    def __init__(self):
+        super().__init__(
+            message = "Cannot edit room details",
+            status_code = 400
+        )

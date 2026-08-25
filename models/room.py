@@ -33,7 +33,13 @@ class Room(Base):
         onupdate=func.now(),
         nullable=False,
     )
+
     created_by : Mapped[str] = mapped_column(
         ForeignKey("users.id"),
         nullable=False,
+    )
+
+    updated_by : Mapped[str] = mapped_column(
+        ForeignKey("users.id"),
+        nullable=False
     )
