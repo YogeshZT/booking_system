@@ -1,16 +1,28 @@
-# This is a sample Python script.
+from fastapi  import FastAPI
 
-# Press ⌃R to execute it or replace it with your code.
-# Press Double ⇧ to search everywhere for classes, files, tool windows, actions, and settings.
+from api.auth import router as auth_router
+from api.bookings import router as bookings_router
+from api.rooms import router as rooms_router
+from exceptions.auth_exceptions import AppException
+from exceptions.handlers import app_exception_handler, generic_exception_handler
+from infrastructure.database import engine
+from models.base import Base
+import models
+
+async def lifespan(app: FastAPI):
+    async with engine.begin() as conn:
+        await conn.run_sync(Base.metadata.create_all)
+    yield
+
+app = FastAPI(title="Meeting room booking app",version="1.0.0", lifespan=lifespan)
+
+app.add_exception_handler(AppException, app_exception_handler)
+app.add_exception_handler(Exception, generic_exception_handler)
+
+app.include_router(auth_router)
+app.include_router(bookings_router)
+app.include_router(rooms_router)
 
 
-def print_hi(name):
-    # Use a breakpoint in the code line below to debug your script.
-    print(f'Hi, {name}')  # Press ⌘F8 to toggle the breakpoint.
 
 
-# Press the green button in the gutter to run the script.
-if __name__ == '__main__':
-    print_hi('PyCharm')
-
-# See PyCharm help at https://www.jetbrains.com/help/pycharm/
