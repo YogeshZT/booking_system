@@ -1,0 +1,1 @@
+ROOM_CREATED_SUCCESSFULLY_MESSAGE = "Room created successfully"
