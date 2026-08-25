@@ -8,7 +8,8 @@ class RoleRepository:
     def __init__(self, db: Session):
         self.db = db
 
-    def get_role_by_name(self, name: str) -> Role | None:
-        stmt = select(Role).where(Role.name == name)
+    async def get_role_by_name(self, name: str) -> Role | None:
 
-        return self.db.scalar(stmt)
+        return await self.db.scalar(
+            select(Role).where(Role.name == name)
+        )
