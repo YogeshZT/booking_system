@@ -11,15 +11,26 @@ router = APIRouter(
 )
 
 @router.get("/")
-def get_rooms():
+def get_rooms(
+    user_id = Depends(get_current_user),
+    room_service: RoomService = Depends(get_room_service)
+):
     pass
 
+
 @router.get("/{room_id}")
-def get_room_details():
+def get_room_details(
+    user_id = Depends(get_current_user),
+    room_service: RoomService = Depends(get_room_service)
+):
     pass
 
 @router.get("/{room_id}/availability")
-def get_available_rooms():
+def get_available_rooms(
+    payload : RoomEditRequest,
+    user_id = Depends(get_current_user),
+    room_service: RoomService = Depends(get_room_service)
+):
     pass
 
 @router.post("/")
@@ -54,9 +65,15 @@ async def edit_room_details(
     )
 
 @router.post("/block/{room_id}")
-def block_room():
+def block_room(
+    user_id = Depends(require_admin),
+    room_service: RoomService = Depends(get_room_service)
+):
     pass
 
-@router.delete("/block/{block}")
-def unblock_room():
+@router.delete("/block/{room_id}")
+def unblock_room(
+    user_id = Depends(require_admin),
+    room_service: RoomService = Depends(get_room_service)
+):
     pass
