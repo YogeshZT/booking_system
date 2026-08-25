@@ -1,8 +1,7 @@
 from sqlalchemy import String
-from sqlalchemy.orm import Mapped, mapped_column
+from sqlalchemy.orm import Mapped, mapped_column, relationship
+
 from .base import Base
-
-
 
 
 class Role(Base):
@@ -14,4 +13,9 @@ class Role(Base):
         String(50),
         unique=True,
         nullable=False,
+    )
+
+    users: Mapped[list["User"]] = relationship(
+        "User",
+        back_populates="role",
     )

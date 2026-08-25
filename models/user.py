@@ -1,10 +1,12 @@
 from datetime import datetime
 
 from sqlalchemy import DateTime, ForeignKey, String, Enum as SQLEnum, func
-from sqlalchemy.orm import Mapped, mapped_column
-from .base import Base
+from sqlalchemy.orm import Mapped, mapped_column, relationship
 
+from .base import Base
+from .role import Role
 from constants import EmailVerificationStatus
+
 
 class User(Base):
     __tablename__ = "users"
@@ -36,6 +38,11 @@ class User(Base):
     role_id: Mapped[str] = mapped_column(
         ForeignKey("roles.id"),
         nullable=False,
+    )
+
+    role: Mapped["Role"] = relationship(
+        "Role",
+        back_populates="users",
     )
 
     created_at: Mapped[datetime] = mapped_column(
