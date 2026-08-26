@@ -2,7 +2,8 @@ from fastapi  import APIRouter, Depends, Cookie, Response, Query
 
 from dependencies import get_current_user, get_room_service, require_admin
 from responses.common import SuccessResponse
-from responses.room_messages import ROOM_CREATED_SUCCESSFULLY_MESSAGE, ROOM_DETAILS_EDITED_SUCCESSFULLY_MESSAGE
+from responses.models.room import RoomResponse, RoomCreateResponse, RoomDetailsResponse
+from responses.room_messages import *
 from schemas.room import RoomCreationRequest, RoomEditRequest
 from services.room_service import RoomService
 
@@ -11,19 +12,41 @@ router = APIRouter(
 )
 
 @router.get("/")
-def get_rooms(
+async def get_rooms(
     user_id = Depends(get_current_user),
     room_service: RoomService = Depends(get_room_service)
 ):
-    pass
+    rooms = await room_service.get_active_rooms()
+
+    response_rooms = [
+        RoomResponse.model_validate(room) for room in rooms
+    ]
+    return SuccessResponse(
+        status = True,
+        message = ROOMS_FETCHED_SUCCESSFULLY_MESSAGE,
+        data = {
+            "rooms": response_rooms
+        }
+    )
 
 
 @router.get("/{room_id}")
-def get_room_details(
+async def get_room_details(
+    room_id : str,
     user_id = Depends(get_current_user),
     room_service: RoomService = Depends(get_room_service)
 ):
-    pass
+    room = await room_service.get_room_details(room_id)
+    room_details_response = RoomDetailsResponse.model_validate(room)
+
+    return SuccessResponse(
+        status = True,
+        message = ROOM_DETAILS_FETCHED_MESSAGE,
+        data ={
+            "room_details" : room_details_response
+        }
+    )
+
 
 @router.get("/{room_id}/availability")
 def get_available_rooms(
@@ -33,6 +56,7 @@ def get_available_rooms(
 ):
     pass
 
+
 @router.post("/")
 async def create_room(
     payload: RoomCreationRequest,
@@ -41,11 +65,13 @@ async def create_room(
 ):
     room = await room_service.create_room(payload, user_id)
 
+    create_room_response = RoomCreateResponse.model_validate(room)
+
     return SuccessResponse(
         status = True,
         message = ROOM_CREATED_SUCCESSFULLY_MESSAGE,
         data = {
-            "room_id": room.id
+            "room_id": create_room_response
         }
     )
 
@@ -64,16 +90,32 @@ async def edit_room_details(
         data = {}
     )
 
+
 @router.post("/block/{room_id}")
-def block_room(
+async def block_room(
+    room_id : str,
     user_id = Depends(require_admin),
     room_service: RoomService = Depends(get_room_service)
 ):
-    pass
+    await room_service.block_room(room_id)
+
+    return SuccessResponse(
+        status=True,
+        message=ROOM_BLOCKED_SUCCESSFULLY_MESSAGE,
+        data={}
+    )
+
 
 @router.delete("/block/{room_id}")
-def unblock_room(
+async def unblock_room(
+    room_id : str,
     user_id = Depends(require_admin),
     room_service: RoomService = Depends(get_room_service)
 ):
-    pass
+    await room_service.unblock_room(room_id)
+
+    return SuccessResponse(
+        status=True,
+        message=ROOM_UNBLOCKED_SUCCESSFULLY_MESSAGE,
+        data={}
+    )
