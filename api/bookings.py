@@ -1,8 +1,9 @@
 from fastapi  import APIRouter, Depends
 
-from dependencies import get_booking_service, get_current_user
+from dependencies import get_booking_service, get_current_user, require_admin
 from responses.booking_messages import *
 from responses.common import SuccessResponse
+from responses.models.booking import BookingCreateResponse, BookingsFetchResponse
 from schemas.booking import CreateBookingRequest
 from services.booking_service import BookingService
 
@@ -16,13 +17,14 @@ async def create_booking(
     user_id = Depends(get_current_user),
     booking_service : BookingService = Depends(get_booking_service)
 ):
-    booking_id = await booking_service.create_booking(payload = payload, user_id = user_id)
+    booking = await booking_service.create_booking(payload = payload, user_id = user_id)
+    booking_create_response = BookingCreateResponse.model_validate(booking)
 
     return SuccessResponse(
         status = True,
         message = BOOKING_CREATED_MESSAGE,
         data = {
-            "booking_id": booking_id
+            "booking_id": booking_create_response
         }
     )
 
@@ -32,7 +34,19 @@ async def get_user_bookings(
     user_id = Depends(get_current_user),
     booking_service : BookingService = Depends(get_booking_service)
 ):
-    return await booking_service.get_user_bookings(user_id)
+    bookings = await booking_service.get_user_bookings(user_id)
+
+    response_bookings = [
+        BookingCreateResponse.model_validate(booking) for booking in bookings
+    ]
+
+    return SuccessResponse(
+        status = True,
+        message = USER_BOOKINGS_FETCHED_SUCCESSFULLY_MESSAGE,
+        data = {
+            "bookings" : response_bookings
+        }
+    )
 
 
 @router.get("/{booking_id}")
@@ -41,7 +55,16 @@ async def get_booking_details(
     user_id = Depends(get_current_user),
     booking_service : BookingService = Depends(get_booking_service)
 ):
-    return await booking_service.get_booking_details(booking_id = booking_id, user_id = user_id)
+    booking = await booking_service.get_booking_details(booking_id = booking_id, user_id = user_id)
+    response_booking = BookingsFetchResponse.model_validate(booking)
+
+    return SuccessResponse(
+        status=True,
+        message=BOOKING_DETAILS_FETCHED_SUCCESSFULLY_MESSAGE,
+        data={
+            "booking": response_booking
+        }
+    )
 
 
 @router.delete("/{booking_id}")
@@ -50,4 +73,10 @@ async def delete_booking(
     user_id = Depends(get_current_user),
     booking_service : BookingService = Depends(get_booking_service)
 ):
-    return await booking_service.delete_booking(booking_id = booking_id, user_id = user_id)
+    await booking_service.delete_booking(booking_id = booking_id, user_id = user_id)
+
+    return SuccessResponse(
+        status=True,
+        message=USER_BOOKING_DELETED_SUCCESSFULLY_MESSAGE,
+        data={}
+    )
