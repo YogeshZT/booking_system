@@ -1,2 +1,6 @@
 ROOM_CREATED_SUCCESSFULLY_MESSAGE = "Room created successfully"
 ROOM_DETAILS_EDITED_SUCCESSFULLY_MESSAGE = "Room details edited successfully"
+ROOMS_FETCHED_SUCCESSFULLY_MESSAGE = "Rooms fetched successfully"
+ROOM_DETAILS_FETCHED_MESSAGE = "Room details fetched successfully"
+ROOM_BLOCKED_SUCCESSFULLY_MESSAGE = "Room blocked successfully"
+ROOM_UNBLOCKED_SUCCESSFULLY_MESSAGE = "Room unblocked successfully"
