@@ -68,11 +68,13 @@ def get_room_service(
 
 def get_booking_service(
     booking_repository = Depends(get_booking_repository),
-    room_service = Depends(get_room_service)
+    room_service = Depends(get_room_service),
+    auth_service = Depends(get_auth_service)
 ):
     return BookingService(
         booking_repository = booking_repository,
-        room_service = room_service
+        room_service = room_service,
+        auth_service = auth_service
     )
 
 

@@ -26,6 +26,11 @@ async def login(
         samesite="lax",
         max_age=SESSION_EXPIRY_SECONDS,
     )
+    return SuccessResponse(
+        status=200,
+        message=LOGGED_IN_SUCCESSFULLY_MESSAGE,
+        data={}
+    )
 
 
 @router.post("/logout")
@@ -41,6 +46,11 @@ async def logout(
         httponly=True,
         secure=True,
         samesite="lax",
+    )
+    return SuccessResponse(
+        status=201,
+        message=LOGGED_OUT_SUCCESSFULLY_MESSAGE,
+        data={}
     )
 
 
