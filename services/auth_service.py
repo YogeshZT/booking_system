@@ -171,6 +171,10 @@ class AuthService:
 
         return user.id
 
+    async def get_user_with_role(self, user_id : str):
+        user = await self.user_repository.get_user_with_role(user_id)
+
+        return user
 
 
 

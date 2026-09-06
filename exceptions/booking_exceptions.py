@@ -14,3 +14,10 @@ class CannotCreateBookingError(AppException):
             message = "Cannot create booking, try again after some time",
             status_code = 400
         )
+
+class BookingNotFoundError(AppException):
+    def __init__(self):
+        super().__init__(
+            message = "Cannot find booking",
+            status_code = 400
+        )
